@@ -1,0 +1,533 @@
+//******************************************************timetableeditor
+import 'package:flutter/material.dart';
+import 'package:syncfusion_flutter_calendar/calendar.dart';
+
+class TimetableEditor extends StatefulWidget {
+  const TimetableEditor({Key? key}) : super(key: key);
+
+  @override
+  State<TimetableEditor> createState() => _TimetableEditorState();
+}
+
+class _TimetableEditorState extends State<TimetableEditor> {
+
+int year=0, month=0, day=0;
+int scheduleTime=0;
+int duration=0;
+late String subject;
+
+
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: SfCalendar(
+        view: CalendarView.week,
+        dataSource: MeetingDataSource(getAppointments()),
+      ),
+    );
+  }
+}
+
+List<Appointment> getAppointments() {
+  List<Appointment> meetings = <Appointment>[];
+  final DateTime today = DateTime.now();
+  final DateTime startTime =
+      DateTime(today.year, today.month, today.day, 9, 0, 0);
+  final DateTime endTime = startTime.add(const Duration(hours: 2));
+
+  meetings.add(Appointment(
+      startTime: startTime,
+      endTime: endTime,
+      subject: 'Test',
+      color: Colors.blue,
+      //recurrenceRule: 'FREQ=DAILY;COUNT=10',
+      isAllDay: true));
+
+  return meetings;
+}
+
+class MeetingDataSource extends CalendarDataSource {
+  MeetingDataSource(List<Appointment> source) {
+    appointments = source;
+  }
+}
+
+//*********************************************************timetable page
+class AddScheduleWidget extends StatefulWidget {
+  const AddScheduleWidget({Key? key}) : super(key: key);
+
+  @override
+  State<AddScheduleWidget> createState() => _AddScheduleWidgetState();
+}
+
+class _AddScheduleWidgetState extends State<AddScheduleWidget> {
+  List<String> savedTimetables = []; // List to store saved timetables
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          'Page Title',
+          style: TextStyle(color: Colors.white, fontSize: 22),
+        ),
+        backgroundColor: Colors.blue,
+        actions: [],
+        centerTitle: false,
+        elevation: 2,
+      ),
+      body: SafeArea(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                children: [
+                  Container(
+                    width: 100,
+                    height: 100,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: IconButton(
+                      iconSize: 32,
+                      icon: Icon(
+                        Icons.add,
+                        color: Colors.grey,
+                      ),
+                      onPressed: () {
+                        print('IconButton pressed ...');
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => TimetableEditor(),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  SizedBox(width: 16), // Add spacing between buttons
+                  Expanded(
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: savedTimetables.length,
+                      itemBuilder: (context, index) {
+                        return ElevatedButton(
+                          onPressed: () {
+                            // Display the respective timetable
+                            print('Timetable ${savedTimetables[index]} clicked.');
+                          },
+                          child: Text(savedTimetables[index]),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            if (savedTimetables.isEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 24),
+                child: Text(
+                  'No schedules yet...',
+                  style: TextStyle(
+                    color: Colors.black54,
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+//***************************************************timetableEditor1
+import 'package:flutter/material.dart';
+import 'package:syncfusion_flutter_calendar/calendar.dart';
+
+class TimetableEditor extends StatefulWidget {
+  const TimetableEditor({Key? key}) : super(key: key);
+
+  @override
+  State<TimetableEditor> createState() => _TimetableEditorState();
+}
+
+class _TimetableEditorState extends State<TimetableEditor> {
+  List<Appointment> meetings = <Appointment>[];
+  late DateTime selectedDateTime;
+  late int selectedHours = 0;
+  late int selectedMinutes = 0;
+  TextEditingController subjectController = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Timetable Editor'),
+      ),
+      body: SfCalendar(
+        view: CalendarView.week,
+        dataSource: MeetingDataSource(meetings),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          _showAddAppointmentDialog(context);
+        },
+        child: Icon(Icons.add),
+      ),
+    );
+  }
+
+  void _showAddAppointmentDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Add Appointment'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: subjectController,
+                  decoration: InputDecoration(
+                    labelText: 'Subject',
+                  ),
+                ),
+                SizedBox(height: 16),
+                Text('Select Date and Time:'),
+                ElevatedButton(
+                  onPressed: () async {
+                    final DateTime? pickedDate = await showDatePicker(
+                      context: context,
+                      initialDate: DateTime.now(),
+                      firstDate: DateTime.now().subtract(Duration(days: 365)),
+                      lastDate: DateTime.now().add(Duration(days: 365)),
+                    );
+                    if (pickedDate != null) {
+                      setState(() {
+                        selectedDateTime = pickedDate;
+                      });
+                    }
+                  },
+                  child: Text('Select Date'),
+                ),
+                SizedBox(height: 8),
+                ElevatedButton(
+                  onPressed: () async {
+                    final TimeOfDay? pickedTime = await showTimePicker(
+                      context: context,
+                      initialTime: TimeOfDay.now(),
+                    );
+                    if (pickedTime != null) {
+                      setState(() {
+                        selectedDateTime = DateTime(
+                          selectedDateTime.year,
+                          selectedDateTime.month,
+                          selectedDateTime.day,
+                          pickedTime.hour,
+                          pickedTime.minute,
+                        );
+                      });
+                    }
+                  },
+                  child: Text('Select Time'),
+                ),
+                SizedBox(height: 16),
+                Text('Select Duration:'),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SizedBox(
+                      width: 60,
+                      child: TextField(
+                        keyboardType: TextInputType.number,
+                        decoration: InputDecoration(labelText: 'Hours'),
+                        onChanged: (value) {
+                          setState(() {
+                            selectedHours = int.tryParse(value) ?? 0;
+                          });
+                        },
+                      ),
+                    ),
+                    SizedBox(width: 16),
+                    SizedBox(
+                      width: 60,
+                      child: TextField(
+                        keyboardType: TextInputType.number,
+                        decoration: InputDecoration(labelText: 'Minutes'),
+                        onChanged: (value) {
+                          setState(() {
+                            selectedMinutes = int.tryParse(value) ?? 0;
+                          });
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            ElevatedButton(
+              onPressed: () {
+                addAppointment();
+                Navigator.pop(context);
+              },
+              child: Text('Add'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text('Cancel'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void addAppointment() {
+    if (selectedDateTime != null) {
+      final Duration selectedDuration = Duration(
+        hours: selectedHours,
+        minutes: selectedMinutes,
+      );
+      final DateTime endTime = selectedDateTime.add(selectedDuration);
+      meetings.add(Appointment(
+        startTime: selectedDateTime,
+        endTime: endTime,
+        subject: subjectController.text,
+        color: Colors.blue,
+        isAllDay: false,
+      ));
+      setState(() {
+        subjectController.clear();
+        selectedDateTime = DateTime.now();
+        selectedHours = 0;
+        selectedMinutes = 0;
+      });
+    }
+  }
+}
+
+class MeetingDataSource extends CalendarDataSource {
+  MeetingDataSource(List<Appointment> source) {
+    appointments = source;
+  }
+}
+
+//***************************************************************8timetableEditor2
+import 'package:flutter/material.dart';
+import 'package:sampleproject1/Timetable/appointment.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:syncfusion_flutter_calendar/calendar.dart' as sync;
+import 'package:sampleproject1/Timetable/appointment.dart' as my;
+
+class TimetableEditor extends StatefulWidget {
+  const TimetableEditor({Key? key}) : super(key: key);
+
+  @override
+  State<TimetableEditor> createState() => _TimetableEditorState();
+}
+
+class _TimetableEditorState extends State<TimetableEditor> {
+  List<my.Appointment> meetings = <my.Appointment>[];
+  late DateTime selectedDateTime;
+  late int selectedHours = 0;
+  late int selectedMinutes = 0;
+  TextEditingController subjectController = TextEditingController();
+  TextEditingController placeController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    loadAppointments();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Timetable Editor'),
+      ),
+      body: sync.SfCalendar(
+        view: sync.CalendarView.week,
+        dataSource: MeetingDataSource(meetings),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          _showAddAppointmentDialog(context);
+        },
+        child: Icon(Icons.add),
+      ),
+    );
+  }
+
+  Future<void> _showAddAppointmentDialog(BuildContext context) async {
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Add Appointment'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: subjectController,
+                  decoration: InputDecoration(
+                    labelText: 'Subject',
+                  ),
+                ),
+                SizedBox(height: 16),
+                Text('Select Date and Time:'),
+                ElevatedButton(
+                  onPressed: () async {
+                    final DateTime? pickedDate = await showDatePicker(
+                      context: context,
+                      initialDate: DateTime.now(),
+                      firstDate: DateTime.now().subtract(Duration(days: 365)),
+                      lastDate: DateTime.now().add(Duration(days: 365)),
+                    );
+                    if (pickedDate != null) {
+                      setState(() {
+                        selectedDateTime = pickedDate;
+                      });
+                    }
+                  },
+                  child: Text('Select Date'),
+                ),
+                SizedBox(height: 8),
+                ElevatedButton(
+                  onPressed: () async {
+                    final TimeOfDay? pickedTime = await showTimePicker(
+                      context: context,
+                      initialTime: TimeOfDay.now(),
+                    );
+                    if (pickedTime != null) {
+                      setState(() {
+                        selectedDateTime = DateTime(
+                          selectedDateTime.year,
+                          selectedDateTime.month,
+                          selectedDateTime.day,
+                          pickedTime.hour,
+                          pickedTime.minute,
+                        );
+                      });
+                    }
+                  },
+                  child: Text('Select Time'),
+                ),
+                SizedBox(height: 16),
+                Text('Select Duration:'),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SizedBox(
+                      width: 60,
+                      child: TextField(
+                        keyboardType: TextInputType.number,
+                        decoration: InputDecoration(labelText: 'Hours'),
+                        onChanged: (value) {
+                          setState(() {
+                            selectedHours = int.tryParse(value) ?? 0;
+                          });
+                        },
+                      ),
+                    ),
+                    SizedBox(width: 16),
+                    SizedBox(
+                      width: 60,
+                      child: TextField(
+                        keyboardType: TextInputType.number,
+                        decoration: InputDecoration(labelText: 'Minutes'),
+                        onChanged: (value) {
+                          setState(() {
+                            selectedMinutes = int.tryParse(value) ?? 0;
+                          });
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            ElevatedButton(
+              onPressed: () {
+                addAppointment();
+                Navigator.pop(context);
+              },
+              child: Text('Add'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text('Cancel'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> addAppointment() async {
+    if (selectedDateTime != null) {
+      final Duration selectedDuration = Duration(
+        hours: selectedHours,
+        minutes: selectedMinutes,
+      );
+      final DateTime endTime = selectedDateTime.add(selectedDuration);
+      meetings.add(my.Appointment(
+        startTime: selectedDateTime,
+        endTime: endTime,
+        subject: subjectController.text,
+        color: Colors.blue,
+        isAllDay: false,
+      ));
+      await saveAppointments();
+      setState(() {
+        subjectController.clear();
+        selectedDateTime = DateTime.now();
+        selectedHours = 0;
+        selectedMinutes = 0;
+      });
+    }
+  }
+
+  Future<void> saveAppointments() async {
+    final prefs = await SharedPreferences.getInstance();
+    final List<String> appointmentsJson =
+        meetings.map((appointment) => appointment.toJsonString()).toList();
+    await prefs.setStringList('appointments', appointmentsJson);
+  }
+
+  Future<void> loadAppointments() async {
+  final prefs = await SharedPreferences.getInstance();
+  final List<String>? appointmentsJson = prefs.getStringList('appointments');
+  if (appointmentsJson != null) {
+    setState(() {
+      meetings = appointmentsJson
+          .map((json) => Appointment.fromJsonString(json))
+          .toList();
+    });
+  }
+}
+
+}
+
+class MeetingDataSource extends sync.CalendarDataSource {
+  MeetingDataSource(List<my.Appointment> source) {
+    appointments = source;
+  }
+}
+

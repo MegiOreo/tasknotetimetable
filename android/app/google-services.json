@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "348411679939",
+    "project_id": "tasknotetimetable",
+    "storage_bucket": "tasknotetimetable.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:348411679939:android:7d053040b3dad13f477e76",
+        "android_client_info": {
+          "package_name": "com.example.tasknotetimetable"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "348411679939-hpm2n35ceh99bfd0s0n7r0er1vn3nj4f.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.tasknotetimetable",
+            "certificate_hash": "c914ecacdc7befbcc27775cec2618152ee061f55"
+          }
+        },
+        {
+          "client_id": "348411679939-ifmtnq5h6vh71hpdkds5qqukkf9hnq3i.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDEdGPSYPCmjetXCgRN7vnvikD4WZNHwd4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "348411679939-ifmtnq5h6vh71hpdkds5qqukkf9hnq3i.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
